@@ -1,5 +1,5 @@
 import socket
-from .utils import can_send_icmp
+from .utils import can_send_icmp, get, ok
 
 
 def has_dns(domains_override: list[str] | None = None) -> bool:
@@ -65,3 +65,44 @@ def has_internet(request_timeout: int = 3, ping_count: int = 4, server_override:
             failed += 1
 
     return failed < threshold
+
+
+def get_public_ip(https: bool = True) -> str | None:
+    """
+    Get the public IP address of the machine.
+
+    :return: The public IP address as a string, or None if it could not be determined.
+    :rtype: str | None
+    """
+
+    services: dict[str, list[str]] = {
+        "https": [
+            "https://api.ipify.org/",
+            "https://icanhazip.com/",
+            "https://ifconfig.me/ip",
+            "https://ipecho.net/plain",
+        ],
+        "http": [
+            "http://checkip.amazonaws.com/",
+            "http://ifconfig.me/ip",
+        ],
+    }
+
+    if https:
+        for service in services["https"]:
+            try:
+                response = get(service)
+                if response.status_code == 200:
+                    return response.text.strip()
+            except Exception:
+                continue
+
+    for service in services["http"]:
+        try:
+            response = get(service)
+            if ok(response.status_code):
+                return response.text.strip()
+        except Exception:
+            continue
+
+    return None
