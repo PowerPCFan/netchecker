@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "netchecker"
-version = "1.0.0"
+version = "1.0.1"
 description = "A simple yet powerful Python module to check internet and DNS capabilities of a system."
 readme = "README.md"
 requires-python = ">=3.10"
